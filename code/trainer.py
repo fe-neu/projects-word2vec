@@ -1,4 +1,7 @@
 import numpy as np
+import time
+import logging
+from logging import Logger
 
 from embedder import Embedder, sigmoid
 from data_preprocessing import generate_pairs
@@ -14,7 +17,8 @@ class Trainer:
                  vocabulary_size: int,
                  negative_sample_size: int,
                  eval_steps: int,
-                 save_steps: int
+                 save_steps: int,
+                 logger: Logger = None
                  ):
         
         self.embedder = embedder
@@ -22,6 +26,7 @@ class Trainer:
         self.text = text
         self.window_radius = window_radius
         self.negative_sample_size = negative_sample_size
+        self.logger = logger
 
         self.frequencies = create_frequency_array(text=text, vocabulary_size=vocabulary_size)
         self.neg_sampling_dist = get_neg_sampling_dist(self.frequencies)
@@ -32,6 +37,8 @@ class Trainer:
         self.step_count = 0
         self.ema_loss = None
         self.ema_alpha = 0.001
+        self.last_eval_time = time.perf_counter()
+        self.last_eval_step = 0
 
     def train_epoch(self, batch_size: int, learning_rate: float) -> None:
 
@@ -94,9 +101,23 @@ class Trainer:
 
         # Sliding window log
         if self.step_count % self.eval_steps == 0:
+            now = time.perf_counter()
+
+            steps_since_last = self.step_count - self.last_eval_step
+            elapsed = now - self.last_eval_time
+            steps_per_sec = steps_since_last / elapsed if elapsed > 0 else float("inf")
+
             mean_loss = self.loss_sum / self.eval_steps
-            print(f"Step {self.step_count}: mean loss = {mean_loss:.4f}, EMA = {self.ema_loss:.4f}")
+
+            out_str = f"Step {self.step_count} | mean loss = {mean_loss:.4f} | EMA = {self.ema_loss:.4f} | {steps_per_sec:.1f} steps/s"
+            
+            if self.logger: self.logger.info(out_str)
+            else: print(out_str)
+
             self.loss_sum = 0.0
+            self.last_eval_time = now
+            self.last_eval_step = self.step_count
+
 
     def save_checkpoint(self) -> None:
         np.save(self.run.run_path / "input_weights.npy", self.embedder.input_weights)

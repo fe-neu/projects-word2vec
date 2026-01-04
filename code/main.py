@@ -22,13 +22,13 @@ negative_sample_size = 10
 batch_size = 32
 epochs = 3
 learning_rate = 0.001
+random_seed = 42
 
-eval_steps=5_000
+eval_steps=50_000
 save_steps=1_000_000
 
 run_name = "Test_Run"
-run_description = f'''
-frequency_threshold = {frequency_threshold}
+run_description = f'''frequency_threshold = {frequency_threshold}
 embed_dims = {embed_dims}
 window_radius = {window_radius}
 negative_sample_size = {negative_sample_size}
@@ -79,7 +79,7 @@ def main():
     embedder = Embedder(
         embed_dims=embed_dims,
         vocabulary_size=len(vocabulary),
-        random_seed=42
+        random_seed=random_seed
     )
 
     logger.info(f"Creating Trainer...")
@@ -91,7 +91,8 @@ def main():
         vocabulary_size=len(vocabulary),
         negative_sample_size=negative_sample_size,
         eval_steps=eval_steps,
-        save_steps=save_steps
+        save_steps=save_steps,
+        logger=logger
     )
 
     for epoch_n in range(epochs):

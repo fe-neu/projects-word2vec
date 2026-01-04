@@ -1,4 +1,5 @@
 import re
+from typing import Iterator
 
 def load_data() -> list[str]:
     '''
@@ -24,61 +25,61 @@ def load_data() -> list[str]:
         for line in text
     ]
 
-    cleaned = [line.lower() for line in cleaned]
+    cleaned = [line.lower().split() for line in cleaned]
 
     return cleaned
 
-def create_pairs(text: list[str], window_size: int) -> list[tuple[str, str]]:
+def generate_pairs(text: list[list[int | None]], window_size: int) -> Iterator[tuple[int, int]]:
     """
     Create skip-gram (center, context) word pairs.
     Assumes `text` is a list of sentences.
     """
 
-    pairs = []
-
     for line in text:
-        words = line.split()
-
-        for idx in range(len(words)):
-            center_word = words[idx]
+        for idx in range(len(line)):
+            center_word = line[idx]
+            if center_word is None: continue
 
             lower = max(0, idx - window_size)
-            upper = min(len(words), idx + window_size + 1)
+            upper = min(len(line), idx + window_size + 1)
 
             for ctx_idx in range(lower, upper):
                 if ctx_idx == idx:
                     continue
 
-                context_word = words[ctx_idx]
-                pairs.append((center_word, context_word))
+                context_word = line[ctx_idx]
 
-    return pairs
+                if context_word is not None:
+                    yield center_word, context_word
 
-def create_vocabulary(pairs: list[tuple[str, str]], threshold: int = 0) -> list[str]:
+def encode_word(word: str, vocabulary_map: dict[str, int]) -> int | None:
+    return vocabulary_map.get(word)
+
+def encode_text(text: list[list[str]], vocabulary_map: dict[str, int]) -> list[list[int]]:
+    encoded_text = []
+    for line in text:
+        encoded_line = []
+        for word in line:
+            encoded_line.append(encode_word(word, vocabulary_map))
+        encoded_text.append(encoded_line)
+
+    return encoded_text
+
+def create_vocabulary(text: list[str], threshold: int = 0) -> list[str]:
     vocabulary = {}
 
-    for pair in pairs:
-        if pair[0] not in vocabulary:
-            vocabulary[pair[0]] = 1
-        else:
-            vocabulary[pair[0]] += 1
+    for line in text:
+        for word in line:
+            if word not in vocabulary:
+                vocabulary[word] = 1
+            else:
+                vocabulary[word] += 1
 
     subset = {word for word, amount in vocabulary.items() if amount > threshold}
 
     return list(subset)
 
-def filter_pairs_from_vocabulary(pairs: list[tuple[str, str]], vocabulary: list[str]) -> list[tuple[str, str]]:
-    filtered_pairs = []
+def create_vocabulary_map(vocabulary: list[str]) -> set[str, int]:
+    word2id = {word: i for i, word in enumerate(vocabulary)}
 
-    for pair in pairs:
-        if pair[0] in vocabulary and pair[1] in vocabulary: filtered_pairs.append(pair)
-    
-    return filtered_pairs
-
-def encode_pairs(pairs: list[tuple[str, str]], vocabulary: list[str]) -> list[tuple[int, int]]:
-    encoded_pairs = []
-
-    for pair in pairs:
-        encoded_pairs.append((vocabulary.index(pair[0]), vocabulary.index(pair[1])))
-
-    return encoded_pairs
+    return word2id

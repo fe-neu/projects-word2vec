@@ -12,7 +12,9 @@ class Trainer:
                  text: list[list[int | None]],
                  window_radius: int,
                  vocabulary_size: int,
-                 negative_sample_size: int
+                 negative_sample_size: int,
+                 eval_steps: int,
+                 save_steps: int
                  ):
         
         self.embedder = embedder
@@ -24,9 +26,10 @@ class Trainer:
         self.frequencies = create_frequency_array(text=text, vocabulary_size=vocabulary_size)
         self.neg_sampling_dist = get_neg_sampling_dist(self.frequencies)
 
+        self.eval_steps = eval_steps
+        self.save_steps = save_steps
         self.loss_sum = 0.0
-        self.loss_count = 0
-        self.window_size = 10_000
+        self.step_count = 0
         self.ema_loss = None
         self.ema_alpha = 0.001
 
@@ -72,11 +75,13 @@ class Trainer:
                 neg_samples
             )
 
+            self.step_count += 1
             self._update_trackers(loss)
+
+            if self.step_count % self.save_steps == 0: self.save_checkpoint()
 
     def _update_trackers(self, loss):
         self.loss_sum += loss
-        self.loss_count += 1
 
         # EMA
         if self.ema_loss is None:
@@ -88,9 +93,9 @@ class Trainer:
             )
 
         # Sliding window log
-        if self.loss_count % self.window_size == 0:
-            mean_loss = self.loss_sum / self.window_size
-            print(f"Step {self.loss_count}: mean loss = {mean_loss:.4f}, EMA = {self.ema_loss:.4f}")
+        if self.step_count % self.eval_steps == 0:
+            mean_loss = self.loss_sum / self.eval_steps
+            print(f"Step {self.step_count}: mean loss = {mean_loss:.4f}, EMA = {self.ema_loss:.4f}")
             self.loss_sum = 0.0
 
     def save_checkpoint(self) -> None:

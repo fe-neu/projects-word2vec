@@ -14,10 +14,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
-run_name = "Third_Run"
-run_description = "Testing"
-
-frequency_threshold = 315
+frequency_threshold = 15
 embed_dims = 128
 window_radius = 3
 negative_sample_size = 10
@@ -25,6 +22,21 @@ negative_sample_size = 10
 batch_size = 32
 epochs = 3
 learning_rate = 0.001
+
+eval_steps=10_000
+save_steps=500_000
+
+run_name = "Fourth_Run"
+run_description = f'''
+frequency_threshold = {frequency_threshold}
+embed_dims = {embed_dims}
+window_radius = {window_radius}
+negative_sample_size = {negative_sample_size}
+
+batch_size = {batch_size}
+epochs = {epochs}
+learning_rate = {learning_rate}
+'''
 
 def main():
     logger = getLogger()
@@ -37,7 +49,7 @@ def main():
 
     logger.info(f"Creating Vocabulary with threshold {frequency_threshold}...")
     vocabulary = create_vocabulary(text=data, threshold=frequency_threshold)
-    logger.info(f"Vocaublary Size is {len(vocabulary)}")
+    logger.info(f"Vocabulary Size is {len(vocabulary)}")
 
     logger.info(f"Creating Vocabulary Map...")
     vocabulary_map = create_vocabulary_map(vocabulary)
@@ -63,7 +75,9 @@ def main():
         text=encoded_text,
         window_radius=window_radius,
         vocabulary_size=len(vocabulary),
-        negative_sample_size=negative_sample_size
+        negative_sample_size=negative_sample_size,
+        eval_steps=eval_steps,
+        save_steps=save_steps
     )
 
     for epoch_n in range(epochs):
@@ -74,5 +88,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

@@ -65,7 +65,7 @@ def encode_text(text: list[list[str]], vocabulary_map: dict[str, int]) -> list[l
 
     return encoded_text
 
-def create_vocabulary(text: list[str], threshold: int = 0) -> list[str]:
+def create_vocabulary(text: list[list[str]], threshold: int = 0) -> list[str]:
     vocabulary = {}
 
     for line in text:

@@ -44,6 +44,20 @@ def main():
     logger.info("Creating new Run...")
     run = Run(run_name=run_name, description=run_description)
 
+    log_path = run.run_path / "run.log"
+
+    file_handler = logging.FileHandler(log_path, mode="w", encoding="utf-8")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s | %(levelname)s | %(message)s",
+            "%Y-%m-%d %H:%M:%S"
+        )
+    )
+
+    logger.addHandler(file_handler)
+    
+
     logger.info("Loading Data...")
     data = load_data()
 

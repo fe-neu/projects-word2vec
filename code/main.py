@@ -14,7 +14,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
-frequency_threshold = 15
+frequency_threshold = 25
 embed_dims = 128
 window_radius = 3
 negative_sample_size = 10
@@ -23,8 +23,8 @@ batch_size = 32
 epochs = 3
 learning_rate = 0.001
 
-eval_steps=10_000
-save_steps=500_000
+eval_steps=50_000
+save_steps=1_000_000
 
 run_name = "Fourth_Run"
 run_description = f'''
@@ -45,7 +45,7 @@ def main():
     run = Run(run_name=run_name, description=run_description)
 
     logger.info("Loading Data...")
-    data = load_data()[:100000]
+    data = load_data()
 
     logger.info(f"Creating Vocabulary with threshold {frequency_threshold}...")
     vocabulary = create_vocabulary(text=data, threshold=frequency_threshold)

@@ -16,10 +16,11 @@ class EmbeddingRetriever:
             
 
     def get_embedding(self, word: str) -> np.ndarray:
+        assert(word in self.vocabulary_map.keys())
         idx = self.vocabulary_map.get(word)
         return self.embeddings[idx]
 
-    def get_neighbours(self, word: str, method: str) -> list[str]:
+    def get_neighbours(self, word: str, method: str) -> list[tuple[str, np.float64]]:
         methods = {
             "euclidean_distance": self._euclidean_distance,
             "cosine_similarity": self._cosine_similarity
@@ -28,17 +29,35 @@ class EmbeddingRetriever:
         assert(method in methods.keys())
 
         query_id = self.vocabulary_map.get(word)
-        central_embedding = self.get_embedding(word)
+        query_embedding = self.get_embedding(word)
 
-        scores = methods.get(method)(central_embedding, self.embeddings)
+        scores = methods.get(method)(query_embedding, self.embeddings)
 
         if method == "cosine_similarity":
             score_idx = np.argsort(scores)[::-1]   # descending
         else:
             score_idx = np.argsort(scores)          # ascending
+
         score_idx = np.delete(score_idx, np.where(score_idx == query_id))
 
         return [(self.id_to_word.get(idx), scores[idx]) for idx in score_idx]
+    
+    def get_similar_words(self, query_embedding: str, method: str) -> list[tuple[str, np.float64]]:
+            methods = {
+                "euclidean_distance": self._euclidean_distance,
+                "cosine_similarity": self._cosine_similarity
+            }
+
+            assert(method in methods.keys())
+
+            scores = methods.get(method)(query_embedding, self.embeddings)
+
+            if method == "cosine_similarity":
+                score_idx = np.argsort(scores)[::-1]   # descending
+            else:
+                score_idx = np.argsort(scores)          # ascending
+
+            return [(self.id_to_word.get(idx), scores[idx]) for idx in score_idx]
 
     def _cosine_similarity(self, q_vec: np.ndarray, E: np.ndarray) -> np.ndarray:
         q_norm = np.linalg.norm(q_vec) + 1e-8

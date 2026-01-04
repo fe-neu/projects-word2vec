@@ -50,7 +50,7 @@ class Embedder:
         center_word: int,
         true_context: int,
         negative_samples: list[int]
-    ) -> None:
+    ) -> float:
 
         # Scores
         x_o = v_c @ u_o            # scalar
@@ -73,3 +73,11 @@ class Embedder:
         self.input_weights[center_word] -= learning_rate * grad_center
         self.output_weights[true_context] -= learning_rate * grad_pos
         self.output_weights[negative_samples] -= learning_rate * grad_neg
+
+        loss = (
+            -np.log(sig_o)
+            -np.sum(np.log(sigmoid(-x_ni)))
+        )
+
+        return loss
+

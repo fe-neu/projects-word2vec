@@ -29,7 +29,7 @@ def load_data() -> list[str]:
 
     return cleaned
 
-def generate_pairs(text: list[list[int | None]], window_size: int) -> Iterator[tuple[int, int]]:
+def generate_pairs(text: list[list[int | None]], window_radius: int) -> Iterator[tuple[int, int]]:
     """
     Create skip-gram (center, context) word pairs.
     Assumes `text` is a list of sentences.
@@ -40,8 +40,8 @@ def generate_pairs(text: list[list[int | None]], window_size: int) -> Iterator[t
             center_word = line[idx]
             if center_word is None: continue
 
-            lower = max(0, idx - window_size)
-            upper = min(len(line), idx + window_size + 1)
+            lower = max(0, idx - window_radius)
+            upper = min(len(line), idx + window_radius + 1)
 
             for ctx_idx in range(lower, upper):
                 if ctx_idx == idx:

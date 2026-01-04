@@ -23,10 +23,10 @@ batch_size = 32
 epochs = 3
 learning_rate = 0.001
 
-eval_steps=50_000
+eval_steps=5_000
 save_steps=1_000_000
 
-run_name = "Fourth_Run"
+run_name = "Test_Run"
 run_description = f'''
 frequency_threshold = {frequency_threshold}
 embed_dims = {embed_dims}
@@ -56,7 +56,7 @@ def main():
     )
 
     logger.addHandler(file_handler)
-    
+
 
     logger.info("Loading Data...")
     data = load_data()

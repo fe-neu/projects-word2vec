@@ -120,5 +120,6 @@ class Trainer:
 
 
     def save_checkpoint(self) -> None:
+        self.logger.info("Creating Checkpoint...")
         np.save(self.run.run_path / "input_weights.npy", self.embedder.input_weights)
         np.save(self.run.run_path / "output_weights.npy", self.embedder.output_weights)

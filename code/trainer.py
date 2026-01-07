@@ -4,7 +4,7 @@ import logging
 from logging import Logger
 
 from embedder import Embedder, sigmoid
-from data_preprocessing import generate_pairs
+from data_utils import generate_pairs
 from negative_sampling import *
 from run import Run
 

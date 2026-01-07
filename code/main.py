@@ -4,7 +4,7 @@ from pathlib import Path
 from run import Run
 from trainer import Trainer
 from embedder import Embedder
-from data_preprocessing import *
+from data_utils import *
 from logging import getLogger
 import logging
 
@@ -27,7 +27,7 @@ random_seed = 42
 eval_steps=50_000
 save_steps=1_000_000
 
-run_name = "Test_Run"
+run_name = "Testo_Run"
 run_description = f'''frequency_threshold = {frequency_threshold}
 embed_dims = {embed_dims}
 window_radius = {window_radius}
@@ -59,7 +59,13 @@ def main():
 
 
     logger.info("Loading Data...")
-    data = load_data()
+    data = load_simple_wiki_dataset()
+
+    logger.info("Precleaning Data...")
+    data = preclean_text(data)
+
+    logger.info("Cleaning Text...")
+    data = clean_text(data)
 
     logger.info(f"Creating Vocabulary with threshold {frequency_threshold}...")
     vocabulary = create_vocabulary(text=data, threshold=frequency_threshold)

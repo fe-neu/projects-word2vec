@@ -27,7 +27,7 @@ random_seed = 42
 eval_steps=50_000
 save_steps=1_000_000
 
-run_name = "Testo_Run"
+run_name = None
 run_description = f'''frequency_threshold = {frequency_threshold}
 embed_dims = {embed_dims}
 window_radius = {window_radius}

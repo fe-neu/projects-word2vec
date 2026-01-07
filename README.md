@@ -139,6 +139,16 @@ This is useful for inspecting semantic structure and debugging training behavior
 
 ---
 
+## Notebook
+
+A small Jupyter notebook (`explore_embeddings.ipynb`) is included to interactively
+inspect trained embeddings. It demonstrates nearest-neighbor queries, similarity
+metrics, and simple vector arithmetic using the existing Python APIs.
+
+The notebook contains **no training logic** and is intended purely for exploration.
+
+---
+
 ## License
 
 This project is intended for educational use.
